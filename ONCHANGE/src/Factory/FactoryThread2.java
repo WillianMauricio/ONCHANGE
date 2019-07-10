@@ -3,14 +3,15 @@ package Factory;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class FactoryThread {
+public class FactoryThread2 {
+
 	/**
 	 * CONSTRUTOR QUE CRIA NOVA THREAD E EXECUTA ELA.
 	 * 
 	 * @param cont  QUANTAS EXECUÇÕES PARALELAS
 	 * @param tempo TEMPO PARA O QUARTZ AGENDAR TAREFAS
 	 */
-	public FactoryThread(int cont, int tempo) {
+	public FactoryThread2(int cont, int tempo) {
 		ExecutorService threadExecutor = Executors.newFixedThreadPool(cont);
 		threadExecutor.execute(new Runnable() {
 			public void run() {

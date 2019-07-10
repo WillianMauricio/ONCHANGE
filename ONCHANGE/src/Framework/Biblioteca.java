@@ -1,7 +1,9 @@
 package Framework;
 
 import Email.EnviaEmail;
-import Factory.FactoryThread;
+import Factory.FactoryQuartz;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.mail.MessagingException;
 import org.quartz.SchedulerException;
 import Classes.ValidadorQuartz;
@@ -12,10 +14,8 @@ import Classes.ValidadorQuartz;
  */
 public class Biblioteca {
 	static private int tipoV;
-
 	/**
 	 * MÉTODO DE ENVIAR E-MAIL CASO HAJA "ANORMALIDADE" NO SITE
-	 * 
 	 * @throws MessagingException UTILIZADO CASO OCORRA ALGUMA EXCESSÃO NO SCHEDULER
 	 */
 	public static void enviarEmail() throws MessagingException {
@@ -28,10 +28,31 @@ public class Biblioteca {
 	 * @param tempo TEMPO DE EXECUÇÃO DE TAREFAS
 	 */
 	@SuppressWarnings("unused")
-	public void criaThread(int tempo) {
-		FactoryThread thread = new FactoryThread(1, tempo);
+	public boolean quartz(int tempo) {
+		FactoryQuartz quartz = new FactoryQuartz();
+		return quartz.criaQuartz(tempo);
 	}
 
+	/**
+	 * CRIA THREAD PARA INSTANCIAS DE VALIDADOR QUARTZ
+	 * @param tipo TIPO DA VERIFICAÇÃO
+	 * @param url URL DO SITE
+	 * @param tempo TEMPO PARA AGENDAR TAREFA
+	 */
+	public void FactoryThread(int tipo, String url, int tempo) {
+		tipoV = tipo;
+		ExecutorService threadExecutor = Executors.newFixedThreadPool(2);
+		threadExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					instanciaValidador(tipo, url, tempo);
+				} catch (SchedulerException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
 	/**
 	 * MÉTODO QUE INSTANCIA UM VALIDADOR QUE ARMAZENA O TIPO, URL EM UMA VARIÁVEL
 	 * ESTÁTICA PARA EXECUTAR O JOB QUARTZ EM UM DETERMINADO TEMPO
@@ -45,9 +66,8 @@ public class Biblioteca {
 	 * @throws SchedulerException UTILIZADO PARA CHAMAR O MÉTODO QUARTZ()
 	 */
 	public ValidadorQuartz instanciaValidador(int tipo, String url, int tempo) throws SchedulerException {
-		tipoV = tipo;
-		criaThread(tempo);
 		ValidadorQuartz validador = new ValidadorQuartz(tipo, url);
+		quartz(tempo);
 		return validador;
 	}
 }
